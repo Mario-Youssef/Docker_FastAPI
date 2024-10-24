@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Prediction</title>
+</head>
+<body>
+    <h1>Titanic Survival Prediction</h1>
+
+    <!-- Input Form -->
+    <form id="prediction-form">
+        <label for="pclass">Passenger Class (1, 2, 3):</label>
+        <input type="number" id="pclass" name="pclass" min="1" max="3" required>
+        <br><br>
+
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" min="0" max="100" required>
+        <br><br>
+
+        <label for="fare">Fare:</label>
+        <input type="number" id="fare" name="fare" min="0" step="0.01" required>
+        <br><br>
+
+        <button type="button" onclick="makePrediction()">Predict</button>
+    </form>
+
+    <!-- Result -->
+    <h2>Prediction Result:</h2>
+    <div id="result"></div>
+
+    <script>
+        async function makePrediction() {
+            const pclass = document.getElementById('pclass').value;
+            const age = document.getElementById('age').value;
+            const fare = document.getElementById('fare').value;
+
+            const inputData = {
+                "pclass": parseInt(pclass),
+                "age": parseFloat(age),
+                "fare": parseFloat(fare)
+            };
+
+            // Send a POST request to FastAPI
+            const response = await fetch('http://localhost:8000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(inputData)
+            });
+
+            const result = await response.json();
+            // Display the result in the result div
+            document.getElementById('result').innerHTML = 
+                `Prediction: ${result.prediction === 1 ? "Survived" : "Did not survive"}<br>
+                 Probability: ${result.probability[0][1].toFixed(2)} (Survival), ${result.probability[0][0].toFixed(2)} (Non-survival)`;
+        }
+    </script>
+</body>
+</html>
+
